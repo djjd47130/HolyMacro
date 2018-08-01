@@ -44,6 +44,7 @@ type
   private
     FPointX: Integer;
     FPointY: Integer;
+    FCounter: Integer;
     procedure DoClick;
   public
     procedure SetClickPoint(const X, Y: Integer);
@@ -85,6 +86,7 @@ begin
     actStartStop.Tag:= 1;
     actStartStop.Caption:= 'STOP';
     tmrClick.Interval:= 10;
+    FCounter:= 0;
     tmrClick.Enabled:= True;
   end else begin
     actStartStop.Tag:= 0;
@@ -139,9 +141,15 @@ begin
   tmrClick.Enabled:= False;
   try
     DoClick;
-    Sleep(500);
+    Sleep(1000);
     DoClick;
-    tmrClick.Interval:= 1000 * 40;    //40 Seconds
+    Inc(FCounter);
+    if FCounter >= 10 then begin
+      FCounter:= 0;
+      tmrClick.Interval:= 1000 * 1320; //22 min
+    end else begin
+      tmrClick.Interval:= 1000 * 40;   //40 sec
+    end;
   finally
     tmrClick.Enabled:= True;
   end;

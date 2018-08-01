@@ -24,7 +24,6 @@ object frmMain: TfrmMain
     Align = alTop
     Caption = 'Select Click Point'
     TabOrder = 0
-    ExplicitWidth = 244
   end
   object btnClick: TBitBtn
     AlignWithMargins = True
@@ -36,8 +35,6 @@ object frmMain: TfrmMain
     Align = alBottom
     Caption = 'START'
     TabOrder = 1
-    ExplicitTop = 291
-    ExplicitWidth = 244
   end
   object Panel1: TPanel
     Left = 0
@@ -47,7 +44,6 @@ object frmMain: TfrmMain
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitWidth = 250
     object Panel2: TPanel
       Left = 0
       Top = 0
@@ -77,7 +73,7 @@ object frmMain: TfrmMain
         Align = alClient
         TabOrder = 0
         Text = '0'
-        ExplicitWidth = 92
+        ExplicitHeight = 21
       end
     end
     object Panel3: TPanel
@@ -88,7 +84,6 @@ object frmMain: TfrmMain
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = 140
       object Label2: TLabel
         AlignWithMargins = True
         Left = 3
@@ -110,7 +105,6 @@ object frmMain: TfrmMain
         Align = alClient
         TabOrder = 0
         Text = '0'
-        ExplicitWidth = 93
         ExplicitHeight = 21
       end
     end
@@ -138,7 +132,6 @@ object frmMain: TfrmMain
       00010F5700610069007400200031002F00320020005300650063006F006E0064
       00340000000000000000000000FFFFFFFFFFFFFFFF0000000000000000000000
       00010B43006C00690063006B00200050006F0069006E007400}
-    ExplicitHeight = 212
   end
   object tmrClick: TTimer
     Enabled = False
