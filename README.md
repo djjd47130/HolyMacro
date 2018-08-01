@@ -4,7 +4,7 @@
 # IMPORTANT NOTE
 This project is in very raw development. It is originally designed for a single particular purpose, but has inspiration behind it for a more complex user-scripted solution to automate UI interactions with your Windows desktop.
 
-#How it Works
+# How it Works
 
 Currently, the logic is hard-coded to automatically "click" a certain point on the screen every 40 seconds. This consists of:
 
