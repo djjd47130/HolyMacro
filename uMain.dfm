@@ -2,7 +2,7 @@ object frmMain: TfrmMain
   Left = 0
   Top = 0
   Caption = 'Clickr'
-  ClientHeight = 234
+  ClientHeight = 297
   ClientWidth = 215
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -20,6 +20,7 @@ object frmMain: TfrmMain
     Top = 3
     Width = 209
     Height = 25
+    Cursor = crHandPoint
     Action = actSelect
     Align = alTop
     Caption = 'Select Click Point'
@@ -28,13 +29,15 @@ object frmMain: TfrmMain
   object btnClick: TBitBtn
     AlignWithMargins = True
     Left = 3
-    Top = 198
+    Top = 261
     Width = 209
     Height = 33
+    Cursor = crHandPoint
     Action = actStartStop
     Align = alBottom
     Caption = 'START'
     TabOrder = 1
+    ExplicitTop = 198
   end
   object Panel1: TPanel
     Left = 0
@@ -114,7 +117,7 @@ object frmMain: TfrmMain
     Left = 3
     Top = 62
     Width = 209
-    Height = 130
+    Height = 193
     Align = alClient
     BorderStyle = bsNone
     Indent = 19
@@ -137,18 +140,18 @@ object frmMain: TfrmMain
     Enabled = False
     OnTimer = tmrClickTimer
     Left = 96
-    Top = 144
+    Top = 208
   end
   object Tray: TTrayIcon
     PopupMenu = mTray
     Visible = True
     OnClick = actShowExecute
     Left = 136
-    Top = 144
+    Top = 208
   end
   object mTray: TPopupActionBar
     Left = 176
-    Top = 144
+    Top = 208
     object Show1: TMenuItem
       Action = actShow
     end
@@ -170,7 +173,7 @@ object frmMain: TfrmMain
   end
   object Acts: TActionManager
     Left = 56
-    Top = 144
+    Top = 208
     StyleName = 'Platform Default'
     object actShow: TAction
       Caption = 'Show'
@@ -192,6 +195,6 @@ object frmMain: TfrmMain
   object tmrUI: TTimer
     Enabled = False
     Left = 16
-    Top = 144
+    Top = 208
   end
 end

@@ -6,7 +6,8 @@ uses
   uMain in 'uMain.pas' {frmMain},
   uMarker in 'uMarker.pas' {frmMarker},
   Vcl.Themes,
-  Vcl.Styles;
+  Vcl.Styles,
+  JD.Clickr in 'JD.Clickr.pas';
 
 {$R *.res}
 

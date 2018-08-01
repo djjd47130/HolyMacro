@@ -6,7 +6,8 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Buttons, Vcl.ExtCtrls,
   Vcl.PlatformDefaultStyleActnCtrls, Vcl.Menus, Vcl.ActnPopup, System.Actions,
-  Vcl.ActnList, Vcl.ActnMan, Vcl.ComCtrls;
+  Vcl.ActnList, Vcl.ActnMan, Vcl.ComCtrls,
+  JD.Clickr;
 
 type
   TfrmMain = class(TForm)
@@ -42,10 +43,13 @@ type
     procedure actStartStopExecute(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
+    FClickr: TClickr;
     FPointX: Integer;
     FPointY: Integer;
     FCounter: Integer;
     procedure DoClick;
+    procedure LoadFromFile(const Filename: String);
+    procedure LoadNode(ANode: TTreeNode; ATask: TClickrTask);
   public
     procedure SetClickPoint(const X, Y: Integer);
   end;
@@ -132,8 +136,35 @@ end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
+  FClickr:= TClickr.Create(Self);
   tvSchedule.Align:= alClient;
+  LoadFromFile('D:\JerryD\Desktop\ClickrSample.json');
   tvSchedule.FullExpand;
+end;
+
+procedure TfrmMain.LoadNode(ANode: TTreeNode; ATask: TClickrTask);
+var
+  N: TTreeNode;
+  T: TClickrTask;
+  X: Integer;
+begin
+  ANode.Data:= ATask;
+  ANode.Text:= ATask.DisplayName;
+  for X := 0 to ATask.Count-1 do begin
+    T:= ATask.Items[X];
+    N:= tvSchedule.Items.AddChild(ANode, '');
+    LoadNode(N, T);
+  end;
+end;
+
+procedure TfrmMain.LoadFromFile(const Filename: String);
+var
+  N: TTreeNode;
+begin
+  Self.tvSchedule.Items.Clear;
+  FClickr.LoadFromFile(Filename);
+  N:= tvSchedule.Items.AddChildFirst(nil, '');
+  LoadNode(N, FClickr.Tasks);
 end;
 
 procedure TfrmMain.tmrClickTimer(Sender: TObject);
@@ -143,13 +174,13 @@ begin
     DoClick;
     Sleep(1000);
     DoClick;
-    Inc(FCounter);
-    if FCounter >= 10 then begin
-      FCounter:= 0;
-      tmrClick.Interval:= 1000 * 1320; //22 min
-    end else begin
+    //Inc(FCounter);
+    //if FCounter >= 10 then begin
+      //FCounter:= 0;
+      //tmrClick.Interval:= 1000 * 1320; //22 min
+    //end else begin
       tmrClick.Interval:= 1000 * 40;   //40 sec
-    end;
+    //end;
   finally
     tmrClick.Enabled:= True;
   end;
