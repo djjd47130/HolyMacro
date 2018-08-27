@@ -1,0 +1,26 @@
+//This demonstrates moving the mouse away from
+//  a point on the screen when it comes near.
+var SX: Integer;
+var SY: Integer;
+var MX: Integer;
+var MY: Integer;
+var Tolerance: Integer = 50;  
+while not Terminated do begin 
+  GetSavedCoords(SX, SY);   
+  MX:= GetCursorPosX;
+  MY:= GetCursorPosY;    
+  if (MX >= (SX - Tolerance)) and (MX <= (SX + Tolerance)) and
+    (MY >= (SY - Tolerance)) and (MY <= (SY + Tolerance)) then 
+  begin   
+    if (MX >= SX) then
+      MoveMouse(MX+(Tolerance*2), MY)
+    else                               
+      MoveMouse(MX-(Tolerance*2), MY);  
+    MX:= GetCursorPosX;
+    if (MY >= SY) then
+      MoveMouse(MX, MY+(Tolerance*2))
+    else                                
+      MoveMouse(MX, MY-(Tolerance*2));                                  
+  end;     
+  Wait(100);
+end;

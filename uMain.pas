@@ -3,55 +3,91 @@ unit uMain;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Buttons, Vcl.ExtCtrls,
-  Vcl.PlatformDefaultStyleActnCtrls, Vcl.Menus, Vcl.ActnPopup, System.Actions,
-  Vcl.ActnList, Vcl.ActnMan, Vcl.ComCtrls,
-  JD.Clickr;
+  Winapi.Windows, Winapi.Messages,
+  System.SysUtils, System.Variants, System.Classes, System.UITypes, System.Types,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.ToolWin,
+  System.Actions, Vcl.ActnList, Vcl.PlatformDefaultStyleActnCtrls, Vcl.ActnMan,
+  Vcl.Menus, Vcl.ActnPopup, Vcl.ExtCtrls, Vcl.Themes,
+  JD.Ctrls.FontButton,
+  SynEdit, SynEditHighlighter, SynHighlighterPas,
+  dwsComp, dwsExprs, dwsCompiler;
 
 type
   TfrmMain = class(TForm)
-    BitBtn1: TBitBtn;
-    btnClick: TBitBtn;
-    Panel1: TPanel;
-    Panel2: TPanel;
-    Label1: TLabel;
-    txtX: TEdit;
-    Panel3: TPanel;
-    Label2: TLabel;
-    txtY: TEdit;
-    tmrClick: TTimer;
-    Tray: TTrayIcon;
-    mTray: TPopupActionBar;
+    ToolBar1: TToolBar;
+    ToolButton6: TToolButton;
+    ToolButton10: TToolButton;
+    ToolButton7: TToolButton;
+    ToolButton8: TToolButton;
+    ToolButton9: TToolButton;
+    ToolButton4: TToolButton;
+    ToolButton3: TToolButton;
+    ToolButton1: TToolButton;
     Acts: TActionManager;
     actShow: TAction;
     actStartStop: TAction;
-    actExit: TAction;
-    actSelect: TAction;
+    actSelectPoint: TAction;
+    actFileNew: TAction;
+    actFileOpen: TAction;
+    actFileSave: TAction;
+    actFileSaveAs: TAction;
+    actFileExit: TAction;
+    Editor: TSynEdit;
+    Tray: TTrayIcon;
+    mTray: TPopupActionBar;
     Show1: TMenuItem;
     N1: TMenuItem;
     SelectClickPoint1: TMenuItem;
     START1: TMenuItem;
     N2: TMenuItem;
     ExitScreenClicker1: TMenuItem;
-    tmrUI: TTimer;
-    tvSchedule: TTreeView;
-    procedure tmrClickTimer(Sender: TObject);
-    procedure actExitExecute(Sender: TObject);
-    procedure actShowExecute(Sender: TObject);
-    procedure actSelectExecute(Sender: TObject);
-    procedure actStartStopExecute(Sender: TObject);
+    DWS: TDelphiWebScript;
+    dwsUnit: TdwsUnit;
+    Highlighter: TSynPasSyn;
+    Stat: TStatusBar;
     procedure FormCreate(Sender: TObject);
+    procedure actFileOpenExecute(Sender: TObject);
+    procedure actFileSaveExecute(Sender: TObject);
+    procedure actFileNewExecute(Sender: TObject);
+    procedure actFileSaveAsExecute(Sender: TObject);
+    procedure EditorChange(Sender: TObject);
+    procedure actSelectPointExecute(Sender: TObject);
+    procedure actStartStopExecute(Sender: TObject);
+    procedure DWSExecutionEnded(exec: TdwsProgramExecution);
+    procedure DWSExecutionStarted(exec: TdwsProgramExecution);
+    procedure dwsUnitFunctionsShowMessageEval(info: TProgramInfo);
+    procedure dwsUnitFunctionsGetCursorPosEval(info: TProgramInfo);
+    procedure dwsUnitFunctionsMoveMouseEval(info: TProgramInfo);
+    procedure dwsUnitFunctionsGetCursorPosXEval(info: TProgramInfo);
+    procedure dwsUnitFunctionsGetCursorPosYEval(info: TProgramInfo);
+    procedure dwsUnitFunctionsMouseLeftClickEval(info: TProgramInfo);
+    procedure dwsUnitFunctionsMouseRightClickEval(info: TProgramInfo);
+    procedure dwsUnitFunctionsMouseMiddleClickEval(info: TProgramInfo);
+    procedure dwsUnitFunctionsWaitEval(info: TProgramInfo);
+    procedure dwsUnitFunctionsTerminateEval(info: TProgramInfo);
+    procedure dwsUnitFunctionsTerminatedEval(info: TProgramInfo);
+    procedure dwsUnitFunctionsGetSavedCoordsEval(info: TProgramInfo);
+    procedure DWSResource(compiler: TdwsCompiler; const resourceName: string);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure actShowExecute(Sender: TObject);
+    procedure actFileExitExecute(Sender: TObject);
   private
-    FClickr: TClickr;
-    FPointX: Integer;
-    FPointY: Integer;
-    FCounter: Integer;
-    procedure DoClick;
+    FClosing: Boolean;
+    FFilename: String;
+    FModified: Boolean;
+    FRunning: Boolean;
+    FTerminated: Boolean;
+    FClickPoint: TPoint;
+    FWaitMax: Integer;
+    FWaitPos: Integer;
+    function PromptSave: Boolean;
     procedure LoadFromFile(const Filename: String);
-    procedure LoadNode(ANode: TTreeNode; ATask: TClickrTask);
+    procedure SaveToFile(const Filename: String);
+    procedure UpdateCaption;
+    procedure UpdateStatusbar;
   public
     procedure SetClickPoint(const X, Y: Integer);
+    procedure UpdateActions; reintroduce;
   end;
 
 var
@@ -62,50 +98,131 @@ implementation
 {$R *.dfm}
 
 uses
+  uDM,
   uSelect,
-  uMarker;
+  uMarker,
+  JD.HolyMacro.Scripting;
 
-procedure TfrmMain.actSelectExecute(Sender: TObject);
+procedure TfrmMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+  CanClose:= FClosing;
+  if not FClosing then begin
+    Hide;
+    FTerminated:= True;
+    FRunning:= False;
+    //TODO...
+
+  end;
+end;
+
+procedure TfrmMain.FormCreate(Sender: TObject);
+begin
+  Editor.Lines.Clear;
+  Editor.Align:= alClient;
+  UpdateActions;
+end;
+
+procedure TfrmMain.actFileExitExecute(Sender: TObject);
+begin
+  FClosing:= True;
+  Close;
+end;
+
+procedure TfrmMain.actFileNewExecute(Sender: TObject);
+var
+  Cont: Boolean;
+begin
+  Cont:= True;
+  if FModified then begin
+    case MessageDlg('Would you like to save first?', mtConfirmation, [mbYes,mbNo,mbCancel], 0) of
+      mrYes: begin
+        Cont:= PromptSave;
+      end;
+      else begin
+        Cont:= False;
+      end;
+    end;
+  end;
+  if Cont then begin
+    FFilename:= '';
+    Editor.Lines.Clear;
+    FModified:= False;
+  end;
+  UpdateActions;
+end;
+
+procedure TfrmMain.actFileOpenExecute(Sender: TObject);
+begin
+  DM.dlgOpen.FileName:= FFilename;
+  if DM.dlgOpen.Execute then begin
+    LoadFromFile(DM.dlgOpen.FileName);
+  end;
+  UpdateActions;
+end;
+
+procedure TfrmMain.LoadFromFile(const Filename: String);
+begin
+  Editor.Lines.LoadFromFile(Filename);
+  FFilename:= Filename;
+  FModified:= False;
+  UpdateActions;
+end;
+
+procedure TfrmMain.SaveToFile(const Filename: String);
+begin
+  Editor.Lines.SaveToFile(Filename);
+  FFilename:= Filename;
+  FModified:= False;
+
+  UpdateActions;
+end;
+
+function TfrmMain.PromptSave: Boolean;
+begin
+  Result:= True;
+  if FFilename = '' then begin
+    actFileSaveAs.Execute;
+    if DM.dlgSave.Execute then begin
+      SaveToFile(DM.dlgSave.FileName);
+    end else begin
+      Result:= False;
+    end;
+  end else begin
+    SaveToFile(FFilename);
+  end;
+
+  UpdateActions;
+end;
+
+procedure TfrmMain.actFileSaveExecute(Sender: TObject);
+begin
+  PromptSave;
+
+  UpdateActions;
+end;
+
+procedure TfrmMain.actSelectPointExecute(Sender: TObject);
 begin
   frmSelect.Left:= Screen.DesktopLeft;
   frmSelect.Top:= Screen.DesktopTop;
   frmSelect.Width:= Screen.DesktopWidth;
   frmSelect.Height:= Screen.DesktopHeight;
   frmSelect.Show;
-end;
 
-procedure TfrmMain.actExitExecute(Sender: TObject);
-begin
-  Close;
+  UpdateActions;
 end;
 
 procedure TfrmMain.actShowExecute(Sender: TObject);
 begin
   Show;
-end;
-
-procedure TfrmMain.actStartStopExecute(Sender: TObject);
-begin
-  if actStartStop.Tag = 0 then begin
-    actStartStop.Tag:= 1;
-    actStartStop.Caption:= 'STOP';
-    tmrClick.Interval:= 10;
-    FCounter:= 0;
-    tmrClick.Enabled:= True;
-  end else begin
-    actStartStop.Tag:= 0;
-    actStartStop.Caption:= 'START';
-    tmrClick.Enabled:= False;
-  end;
+  UpdateActions;
 end;
 
 procedure TfrmMain.SetClickPoint(const X, Y: Integer);
 begin
   frmSelect.Hide;
-  txtX.Text:= IntToStr(X);
-  txtY.Text:= IntToStr(Y);
-  FPointX:= X;
-  FPointY:= Y;
+  FClickPoint.X:= X;
+  FClickPoint.Y:= Y;
   frmMarker.Width:= 42;
   frmMarker.Height:= 42;
   frmMarker.Left:= X - (frmMarker.Width div 2);
@@ -114,76 +231,234 @@ begin
   //frmMarker.Invalidate;
   //frmMarker.BringToFront;
   Application.ProcessMessages;
+  UpdateActions;
 end;
 
-procedure TfrmMain.DoClick;
+procedure TfrmMain.actStartStopExecute(Sender: TObject);
 var
-  PriorPos: TPoint;
+  P: IdwsProgram;
 begin
-  //frmMarker.Visible:= False;
-  //frmMarker.Clicking:= True;
-  try
-    PriorPos:= Mouse.CursorPos;
-    SetCursorPos(FPointX, FPointY);
-    mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
-    mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
-    SetCursorPos(PriorPos.X, PriorPos.Y);
-  finally
-    //frmMarker.Visible:= True;
-    //frmMarker.Clicking:= False;
+  if not FRunning then begin
+    //START
+    FTerminated:= False;
+    FRunning:= True;
+    try
+      P:= DWS.Compile(Editor.Lines.Text);
+      P.Execute;
+    finally
+      FRunning:= False;
+    end;
+  end else begin
+    //STOP
+    FTerminated:= True;
+    FRunning:= False;
   end;
+
+  UpdateActions;
 end;
 
-procedure TfrmMain.FormCreate(Sender: TObject);
+procedure TfrmMain.DWSExecutionStarted(exec: TdwsProgramExecution);
 begin
-  FClickr:= TClickr.Create(Self);
-  tvSchedule.Align:= alClient;
-  LoadFromFile('D:\JerryD\Desktop\ClickrSample.json');
-  tvSchedule.FullExpand;
+  actStartStop.ImageIndex:= 1;
+  FRunning:= True;
+  UpdateActions;
 end;
 
-procedure TfrmMain.LoadNode(ANode: TTreeNode; ATask: TClickrTask);
+procedure TfrmMain.DWSExecutionEnded(exec: TdwsProgramExecution);
+begin
+  actStartStop.ImageIndex:= 16;
+  FRunning:= False;
+  UpdateActions;
+end;
+
+procedure TfrmMain.DWSResource(compiler: TdwsCompiler;
+  const resourceName: string);
+begin
+  //
+end;
+
+procedure TfrmMain.actFileSaveAsExecute(Sender: TObject);
+begin
+  DM.dlgSave.FileName:= FFilename;
+  if DM.dlgSave.Execute then begin
+    Editor.Lines.SaveToFile(DM.dlgSave.FileName);
+    FFilename:= DM.dlgSave.FileName;
+    FModified:= False;
+  end;
+  UpdateActions;
+end;
+
+procedure TfrmMain.EditorChange(Sender: TObject);
+begin
+  FModified:= True;
+  UpdateActions;
+end;
+
+procedure TfrmMain.dwsUnitFunctionsGetCursorPosEval(info: TProgramInfo);
 var
-  N: TTreeNode;
-  T: TClickrTask;
+  P: TPoint;
+begin
+  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+
+  P:= Mouse.CursorPos;
+  //info.ResultVars
+  //TODO: HOW TO RETURN A TPOINT RECORD??!!
+
+end;
+
+procedure TfrmMain.dwsUnitFunctionsGetCursorPosXEval(info: TProgramInfo);
+begin
+  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+
+  info.ResultAsInteger:= TMouse.GetPosX;
+end;
+
+procedure TfrmMain.dwsUnitFunctionsGetCursorPosYEval(info: TProgramInfo);
+begin
+  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+
+  info.ResultAsInteger:= TMouse.GetPosY;
+end;
+
+procedure TfrmMain.dwsUnitFunctionsGetSavedCoordsEval(info: TProgramInfo);
+begin
+  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+
+  info.ParamAsInteger[0]:= FClickPoint.X;
+  info.ParamAsInteger[1]:= FClickPoint.Y;
+end;
+
+procedure TfrmMain.dwsUnitFunctionsMouseLeftClickEval(info: TProgramInfo);
+begin
+  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+
+  TMouse.LeftClick(info.ParamAsInteger[0], info.ParamAsInteger[1]);
+end;
+
+procedure TfrmMain.dwsUnitFunctionsMouseRightClickEval(info: TProgramInfo);
+begin
+  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+
+  TMouse.RightClick(info.ParamAsInteger[0], info.ParamAsInteger[1]);
+end;
+
+procedure TfrmMain.dwsUnitFunctionsMouseMiddleClickEval(info: TProgramInfo);
+begin
+  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+
+  TMouse.MiddleClick(info.ParamAsInteger[0], info.ParamAsInteger[1]);
+end;
+
+procedure TfrmMain.dwsUnitFunctionsMoveMouseEval(info: TProgramInfo);
+var
+  P: TPoint;
+begin
+  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+
+  P:= Point(info.ParamAsInteger[0], info.ParamAsInteger[1]);
+  TMouse.SetPos(P);
+end;
+
+procedure TfrmMain.dwsUnitFunctionsShowMessageEval(info: TProgramInfo);
+var
+  S: String;
+begin
+  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+
+  S:= Info.ParamAsString[0];
+  ShowMessage(S);
+end;
+
+procedure TfrmMain.dwsUnitFunctionsTerminatedEval(info: TProgramInfo);
+begin
+  info.ResultAsBoolean:= FTerminated;
+end;
+
+procedure TfrmMain.dwsUnitFunctionsTerminateEval(info: TProgramInfo);
+begin
+  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+
+  FTerminated:= True;
+end;
+
+procedure TfrmMain.dwsUnitFunctionsWaitEval(info: TProgramInfo);
+const
+  SLEEP_DIV = 100;
+var
   X: Integer;
+  Msec: Integer;
 begin
-  ANode.Data:= ATask;
-  ANode.Text:= ATask.DisplayName;
-  for X := 0 to ATask.Count-1 do begin
-    T:= ATask.Items[X];
-    N:= tvSchedule.Items.AddChild(ANode, '');
-    LoadNode(N, T);
-  end;
-end;
+  if Application.Terminated or FTerminated or (not FRunning) then Exit;
 
-procedure TfrmMain.LoadFromFile(const Filename: String);
-var
-  N: TTreeNode;
-begin
-  Self.tvSchedule.Items.Clear;
-  FClickr.LoadFromFile(Filename);
-  N:= tvSchedule.Items.AddChildFirst(nil, '');
-  LoadNode(N, FClickr.Tasks);
-end;
-
-procedure TfrmMain.tmrClickTimer(Sender: TObject);
-begin
-  tmrClick.Enabled:= False;
+  Msec:= info.ParamAsInteger[0];
+  FWaitPos:= 0;
+  FWaitMax:= (Msec div SLEEP_DIV);
+  if FWaitMax = 0 then
+    FWaitMax:= 1;
   try
-    DoClick;
-    Sleep(1000);
-    DoClick;
-    //Inc(FCounter);
-    //if FCounter >= 10 then begin
-      //FCounter:= 0;
-      //tmrClick.Interval:= 1000 * 1320; //22 min
-    //end else begin
-      tmrClick.Interval:= 1000 * 40;   //40 sec
-    //end;
+    for X := 1 to FWaitMax do begin
+      if Application.Terminated or FTerminated or (not FRunning) then Break;
+      if Msec >= 100 then
+        Sleep(SLEEP_DIV)
+      else
+        Sleep(Msec);
+      Inc(FWaitPos);
+      UpdateStatusbar;
+      Application.ProcessMessages;
+    end;
   finally
-    tmrClick.Enabled:= True;
+    FWaitMax:= 0;
+    FWaitPos:= 0;
   end;
+
+  UpdateStatusbar;
 end;
 
+procedure TfrmMain.UpdateActions;
+begin
+  actFileSave.Enabled:= FModified;
+
+  if FRunning then
+    Tray.IconIndex:= 15
+  else
+    Tray.IconIndex:= 14;
+
+  UpdateCaption;
+  UpdateStatusbar;
+end;
+
+procedure TfrmMain.UpdateStatusbar;
+begin
+  if FRunning then
+    Stat.Panels[0].Text:= 'RUNNING'
+  else
+    Stat.Panels[0].Text:= 'Ready';
+
+  if FModified then
+    Stat.Panels[1].Text:= 'Modified'
+  else
+    Stat.Panels[1].Text:= '';
+
+  if (FWaitMax > 0) and (FWaitPos > 1) then
+    Stat.Panels[2].Text:= 'Waiting... ('+IntToStr(FWaitMax - FWaitPos)+')'
+  else
+    Stat.Panels[2].Text:= '';
+end;
+
+procedure TfrmMain.UpdateCaption;
+var
+  S: String;
+begin
+  if FFilename = '' then
+    S:= 'New File'
+  else
+    S:= ExtractFileName(FFilename);
+  S:= S + ' - Holy Macro!';
+  if Caption <> S then
+    Caption:= S;
+end;
+
+initialization
+  TStyleManager.Engine.RegisterStyleHook(TCustomSynEdit, TScrollingStyleHook);
+  ColorManager.BaseColor:= clBlack;
 end.

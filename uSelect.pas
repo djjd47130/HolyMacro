@@ -29,7 +29,8 @@ uses
 procedure TfrmSelect.FormMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  frmMain.SetClickPoint(Mouse.CursorPos.X, Mouse.CursorPos.Y);
+  if frmMain <> nil then
+    frmMain.SetClickPoint(Mouse.CursorPos.X, Mouse.CursorPos.Y);
 end;
 
 end.

@@ -1,0 +1,22 @@
+//This demo moves the mouse smoothly in 
+//  the down-right direction of the screen
+//  and then back up to its original position.
+var P: TPoint;
+var X: Integer;
+const LOOP_TIMES = 500;
+const WAIT_TIME = 4;
+const MOVE_STEPS = 2;
+
+for X := 1 to LOOP_TIMES do begin      
+  P.X:= GetCursorPosX;
+  P.Y:= GetCursorPosY;      
+  MoveMouse(P.X+MOVE_STEPS, P.Y+MOVE_STEPS);            
+  Wait(WAIT_TIME);                       
+end;
+      
+for X := 1 to LOOP_TIMES do begin     
+  P.X:= GetCursorPosX;
+  P.Y:= GetCursorPosY;      
+  MoveMouse(P.X-MOVE_STEPS, P.Y-MOVE_STEPS);            
+  Wait(WAIT_TIME);                       
+end;
