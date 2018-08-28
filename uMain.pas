@@ -1,16 +1,34 @@
-unit uMain;
+﻿unit uMain;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages,
+  Winapi.Windows, Winapi.Messages, System.Actions,
+
   System.SysUtils, System.Variants, System.Classes, System.UITypes, System.Types,
+
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.ToolWin,
-  System.Actions, Vcl.ActnList, Vcl.PlatformDefaultStyleActnCtrls, Vcl.ActnMan,
-  Vcl.Menus, Vcl.ActnPopup, Vcl.ExtCtrls, Vcl.Themes,
+  Vcl.ActnList, Vcl.PlatformDefaultStyleActnCtrls, Vcl.ActnMan, Vcl.Menus,
+  Vcl.ActnPopup, Vcl.ExtCtrls, Vcl.Themes,
+
   JD.Ctrls.FontButton,
+
   SynEdit, SynEditHighlighter, SynHighlighterPas,
-  dwsComp, dwsExprs, dwsCompiler;
+
+  dwsComp, dwsExprs, dwsCompiler,
+
+  Vcl.Styles.Fixes,
+  Vcl.Styles.Utils,
+  Vcl.Styles.Utils.Menus,
+  Vcl.Styles.Utils.StdCtrls,
+  Vcl.Styles.Utils.ComCtrls,
+  Vcl.Styles.Utils.ScreenTips,
+  Vcl.Styles.Utils.SysControls,
+  Vcl.Styles.Utils.SysStyleHook;
+
+const
+  SLEEP_DIV = 100;
+  TEST = VK_RETURN;
 
 type
   TfrmMain = class(TForm)
@@ -41,10 +59,60 @@ type
     START1: TMenuItem;
     N2: TMenuItem;
     ExitScreenClicker1: TMenuItem;
-    DWS: TDelphiWebScript;
-    dwsUnit: TdwsUnit;
     Highlighter: TSynPasSyn;
     Stat: TStatusBar;
+    mEditor: TPopupMenu;
+    mEditorCut: TMenuItem;
+    mEditorCopy: TMenuItem;
+    mEditorPaste: TMenuItem;
+    N3: TMenuItem;
+    mEditorToggleBookmark: TMenuItem;
+    mEditorGotoBookmark: TMenuItem;
+    mToggleBookmark0: TMenuItem;
+    mToggleBookmark1: TMenuItem;
+    mToggleBookmark2: TMenuItem;
+    mToggleBookmark3: TMenuItem;
+    mToggleBookmark4: TMenuItem;
+    mToggleBookmark5: TMenuItem;
+    mToggleBookmark6: TMenuItem;
+    mToggleBookmark7: TMenuItem;
+    mToggleBookmark8: TMenuItem;
+    mToggleBookmark9: TMenuItem;
+    mGotoBookmark0: TMenuItem;
+    Bookmark12: TMenuItem;
+    Bookmark22: TMenuItem;
+    Bookmark32: TMenuItem;
+    Bookmark42: TMenuItem;
+    Bookmark52: TMenuItem;
+    Bookmark62: TMenuItem;
+    Bookmark72: TMenuItem;
+    Bookmark82: TMenuItem;
+    Bookmark92: TMenuItem;
+    mEditorClearBookmarks: TMenuItem;
+    MM: TMainMenu;
+    File1: TMenuItem;
+    Edit1: TMenuItem;
+    View1: TMenuItem;
+    Options1: TMenuItem;
+    Help1: TMenuItem;
+    NewScript1: TMenuItem;
+    Action1: TAction;
+    OpenScript1: TMenuItem;
+    SaveScript1: TMenuItem;
+    SaveScriptAs1: TMenuItem;
+    N4: TMenuItem;
+    ExitHolyMacro1: TMenuItem;
+    Copy1: TMenuItem;
+    Cut1: TMenuItem;
+    Paste1: TMenuItem;
+    Undo1: TMenuItem;
+    Redo1: TMenuItem;
+    N5: TMenuItem;
+    SelectAll1: TMenuItem;
+    N6: TMenuItem;
+    Find1: TMenuItem;
+    FindandReplace1: TMenuItem;
+    Bevel1: TBevel;
     procedure FormCreate(Sender: TObject);
     procedure actFileOpenExecute(Sender: TObject);
     procedure actFileSaveExecute(Sender: TObject);
@@ -71,23 +139,35 @@ type
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure actShowExecute(Sender: TObject);
     procedure actFileExitExecute(Sender: TObject);
+    procedure EditorTokenHint(Sender: TObject; Coords: TBufferCoord;
+      const Token: string; TokenType: Integer; Attri: TSynHighlighterAttributes;
+      var HintText: string);
+    procedure mEditorPopup(Sender: TObject);
+    procedure ToggleBookmarkClick(Sender: TObject);
+    procedure GotoBookmarkClick(Sender: TObject);
+    procedure mEditorClearBookmarksClick(Sender: TObject);
+    procedure EditorGutterGetText(Sender: TObject; aLine: Integer;
+      var aText: string);
   private
     FClosing: Boolean;
     FFilename: String;
     FModified: Boolean;
-    FRunning: Boolean;
-    FTerminated: Boolean;
     FClickPoint: TPoint;
     FWaitMax: Integer;
     FWaitPos: Integer;
     function PromptSave: Boolean;
     procedure LoadFromFile(const Filename: String);
     procedure SaveToFile(const Filename: String);
-    procedure UpdateCaption;
-    procedure UpdateStatusbar;
+    procedure SetWaitMax(const Value: Integer);
+    procedure SetWaitPos(const Value: Integer);
   public
     procedure SetClickPoint(const X, Y: Integer);
     procedure UpdateActions; reintroduce;
+    procedure UpdateCaption;
+    procedure UpdateStatusbar;
+    property ClickPoint: TPoint read FClickPoint;
+    property WaitMax: Integer read FWaitMax write SetWaitMax;
+    property WaitPos: Integer read FWaitPos write SetWaitPos;
   end;
 
 var
@@ -101,19 +181,26 @@ uses
   uDM,
   uSelect,
   uMarker,
-  JD.HolyMacro.Scripting;
+  DateUtils,
+  JD.HolyMacro;
 
-procedure TfrmMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+{ General }
+
+function IsExactlyDivisibleBy(Number: Integer; Divisor: Integer): Boolean;
 begin
-  CanClose:= FClosing;
-  if not FClosing then begin
-    Hide;
-    FTerminated:= True;
-    FRunning:= False;
-    //TODO...
-
-  end;
+  Assert(Divisor>0);
+  Result := Number mod Divisor = 0;
 end;
+
+function MsecTimeStr(Msec: Integer): String;
+var
+  DT: TDateTime;
+begin
+  DT:= DateUtils.IncMilliSecond(0, Msec);
+  Result:= FormatDateTime('hh:nn:ss', DT);
+end;
+
+{ TfrmMain }
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
@@ -122,8 +209,24 @@ begin
   UpdateActions;
 end;
 
+procedure TfrmMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+  CanClose:= FClosing;
+  if not FClosing then begin
+    //Not closing, just hide the form...
+    Hide;
+  end else begin
+    //Closing, terminate script if running...
+    DM.Terminated:= True;
+    DM.Running:= False;
+  end;
+end;
+
 procedure TfrmMain.actFileExitExecute(Sender: TObject);
 begin
+  if FModified then begin
+
+  end;
   FClosing:= True;
   Close;
 end;
@@ -166,6 +269,20 @@ begin
   FFilename:= Filename;
   FModified:= False;
   UpdateActions;
+end;
+
+procedure TfrmMain.mEditorClearBookmarksClick(Sender: TObject);
+var
+  X: Integer;
+begin
+  for X := 0 to 9 do
+    Editor.ClearBookMark(X);
+end;
+
+procedure TfrmMain.mEditorPopup(Sender: TObject);
+begin
+  //TODO: Toggle enabled state of menu items...
+
 end;
 
 procedure TfrmMain.SaveToFile(const Filename: String);
@@ -234,24 +351,50 @@ begin
   UpdateActions;
 end;
 
+procedure TfrmMain.SetWaitMax(const Value: Integer);
+begin
+  FWaitMax := Value;
+end;
+
+procedure TfrmMain.SetWaitPos(const Value: Integer);
+begin
+  FWaitPos := Value;
+end;
+
+procedure TfrmMain.ToggleBookmarkClick(Sender: TObject);
+var
+  M: TMenuItem;
+begin
+  M:= TMenuItem(Sender);
+  Editor.SetBookMark(M.Tag, Editor.CaretX, Editor.CaretY);
+end;
+
+procedure TfrmMain.GotoBookmarkClick(Sender: TObject);
+var
+  M: TMenuItem;
+begin
+  M:= TMenuItem(Sender);
+  Editor.GotoBookMark(M.Tag);
+end;
+
 procedure TfrmMain.actStartStopExecute(Sender: TObject);
 var
   P: IdwsProgram;
 begin
-  if not FRunning then begin
+  if not DM.Running then begin
     //START
-    FTerminated:= False;
-    FRunning:= True;
+    DM.Terminated:= False;
+    DM.Running:= True;
     try
-      P:= DWS.Compile(Editor.Lines.Text);
+      P:= DM.DWS.Compile(Editor.Lines.Text);
       P.Execute;
     finally
-      FRunning:= False;
+      DM.Running:= False;
     end;
   end else begin
     //STOP
-    FTerminated:= True;
-    FRunning:= False;
+    DM.Terminated:= True;
+    DM.Running:= False;
   end;
 
   UpdateActions;
@@ -260,14 +403,16 @@ end;
 procedure TfrmMain.DWSExecutionStarted(exec: TdwsProgramExecution);
 begin
   actStartStop.ImageIndex:= 1;
-  FRunning:= True;
+  DM.Running:= True;
+  Editor.ReadOnly:= True;
   UpdateActions;
 end;
 
 procedure TfrmMain.DWSExecutionEnded(exec: TdwsProgramExecution);
 begin
   actStartStop.ImageIndex:= 16;
-  FRunning:= False;
+  DM.Running:= False;
+  Editor.ReadOnly:= False;
   UpdateActions;
 end;
 
@@ -294,11 +439,38 @@ begin
   UpdateActions;
 end;
 
+procedure TfrmMain.EditorGutterGetText(Sender: TObject; aLine: Integer;
+  var aText: string);
+begin
+  if (aLine = Editor.CaretY) or (aLine = 1) then begin
+    aText:= IntToStr(aLine);
+  end else begin
+    if IsExactlyDivisibleBy(aLine, 10) then begin
+      aText:= IntToStr(aLine);
+    end else begin
+      if IsExactlyDivisibleBy(aLine, 5) then begin
+        aText:= '-';
+      end else begin
+        aText:= '·';
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmMain.EditorTokenHint(Sender: TObject; Coords: TBufferCoord;
+  const Token: string; TokenType: Integer; Attri: TSynHighlighterAttributes;
+  var HintText: string);
+begin
+  //TODO: Show hints when user hovers over identifiers in the code editor...
+
+
+end;
+
 procedure TfrmMain.dwsUnitFunctionsGetCursorPosEval(info: TProgramInfo);
 var
   P: TPoint;
 begin
-  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+  if Application.Terminated or DM.Terminated or (not DM.Running) then Exit;
 
   P:= Mouse.CursorPos;
   //info.ResultVars
@@ -308,21 +480,21 @@ end;
 
 procedure TfrmMain.dwsUnitFunctionsGetCursorPosXEval(info: TProgramInfo);
 begin
-  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+  if Application.Terminated or DM.Terminated or (not DM.Running) then Exit;
 
-  info.ResultAsInteger:= TMouse.GetPosX;
+  info.ResultAsInteger:= THolyMacroMouse.GetPosX;
 end;
 
 procedure TfrmMain.dwsUnitFunctionsGetCursorPosYEval(info: TProgramInfo);
 begin
-  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+  if Application.Terminated or DM.Terminated or (not DM.Running) then Exit;
 
-  info.ResultAsInteger:= TMouse.GetPosY;
+  info.ResultAsInteger:= THolyMacroMouse.GetPosY;
 end;
 
 procedure TfrmMain.dwsUnitFunctionsGetSavedCoordsEval(info: TProgramInfo);
 begin
-  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+  if Application.Terminated or DM.Terminated or (not DM.Running) then Exit;
 
   info.ParamAsInteger[0]:= FClickPoint.X;
   info.ParamAsInteger[1]:= FClickPoint.Y;
@@ -330,40 +502,40 @@ end;
 
 procedure TfrmMain.dwsUnitFunctionsMouseLeftClickEval(info: TProgramInfo);
 begin
-  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+  if Application.Terminated or DM.Terminated or (not DM.Running) then Exit;
 
-  TMouse.LeftClick(info.ParamAsInteger[0], info.ParamAsInteger[1]);
+  THolyMacroMouse.LeftClick(info.ParamAsInteger[0], info.ParamAsInteger[1]);
 end;
 
 procedure TfrmMain.dwsUnitFunctionsMouseRightClickEval(info: TProgramInfo);
 begin
-  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+  if Application.Terminated or DM.Terminated or (not DM.Running) then Exit;
 
-  TMouse.RightClick(info.ParamAsInteger[0], info.ParamAsInteger[1]);
+  THolyMacroMouse.RightClick(info.ParamAsInteger[0], info.ParamAsInteger[1]);
 end;
 
 procedure TfrmMain.dwsUnitFunctionsMouseMiddleClickEval(info: TProgramInfo);
 begin
-  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+  if Application.Terminated or DM.Terminated or (not DM.Running) then Exit;
 
-  TMouse.MiddleClick(info.ParamAsInteger[0], info.ParamAsInteger[1]);
+  THolyMacroMouse.MiddleClick(info.ParamAsInteger[0], info.ParamAsInteger[1]);
 end;
 
 procedure TfrmMain.dwsUnitFunctionsMoveMouseEval(info: TProgramInfo);
 var
   P: TPoint;
 begin
-  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+  if Application.Terminated or DM.Terminated or (not DM.Running) then Exit;
 
   P:= Point(info.ParamAsInteger[0], info.ParamAsInteger[1]);
-  TMouse.SetPos(P);
+  THolyMacroMouse.SetPos(P);
 end;
 
 procedure TfrmMain.dwsUnitFunctionsShowMessageEval(info: TProgramInfo);
 var
   S: String;
 begin
-  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+  if Application.Terminated or DM.Terminated or (not DM.Running) then Exit;
 
   S:= Info.ParamAsString[0];
   ShowMessage(S);
@@ -371,24 +543,22 @@ end;
 
 procedure TfrmMain.dwsUnitFunctionsTerminatedEval(info: TProgramInfo);
 begin
-  info.ResultAsBoolean:= FTerminated;
+  info.ResultAsBoolean:= DM.Terminated;
 end;
 
 procedure TfrmMain.dwsUnitFunctionsTerminateEval(info: TProgramInfo);
 begin
-  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+  if Application.Terminated or DM.Terminated or (not DM.Running) then Exit;
 
-  FTerminated:= True;
+  DM.Terminated:= True;
 end;
 
 procedure TfrmMain.dwsUnitFunctionsWaitEval(info: TProgramInfo);
-const
-  SLEEP_DIV = 100;
 var
   X: Integer;
   Msec: Integer;
 begin
-  if Application.Terminated or FTerminated or (not FRunning) then Exit;
+  if Application.Terminated or DM.Terminated or (not DM.Running) then Exit;
 
   Msec:= info.ParamAsInteger[0];
   FWaitPos:= 0;
@@ -397,7 +567,7 @@ begin
     FWaitMax:= 1;
   try
     for X := 1 to FWaitMax do begin
-      if Application.Terminated or FTerminated or (not FRunning) then Break;
+      if Application.Terminated or DM.Terminated or (not DM.Running) then Break;
       if Msec >= 100 then
         Sleep(SLEEP_DIV)
       else
@@ -418,7 +588,7 @@ procedure TfrmMain.UpdateActions;
 begin
   actFileSave.Enabled:= FModified;
 
-  if FRunning then
+  if DM.Running then
     Tray.IconIndex:= 15
   else
     Tray.IconIndex:= 14;
@@ -429,7 +599,7 @@ end;
 
 procedure TfrmMain.UpdateStatusbar;
 begin
-  if FRunning then
+  if DM.Running then
     Stat.Panels[0].Text:= 'RUNNING'
   else
     Stat.Panels[0].Text:= 'Ready';
@@ -439,8 +609,9 @@ begin
   else
     Stat.Panels[1].Text:= '';
 
+  //TODO: Format time to hh:nn:ss...
   if (FWaitMax > 0) and (FWaitPos > 1) then
-    Stat.Panels[2].Text:= 'Waiting... ('+IntToStr(FWaitMax - FWaitPos)+')'
+    Stat.Panels[2].Text:= 'Waiting '+MsecTimeStr((FWaitMax - FWaitPos)*SLEEP_DIV)  //+IntToStr(FWaitMax - FWaitPos)
   else
     Stat.Panels[2].Text:= '';
 end;

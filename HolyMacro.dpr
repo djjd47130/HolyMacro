@@ -8,7 +8,7 @@ uses
   Vcl.Styles,
   uMain in 'uMain.pas' {frmMain},
   uDM in 'uDM.pas' {DM: TDataModule},
-  JD.HolyMacro.Scripting in 'JD.HolyMacro.Scripting.pas';
+  JD.HolyMacro in 'JD.HolyMacro.pas';
 
 {$R *.res}
 

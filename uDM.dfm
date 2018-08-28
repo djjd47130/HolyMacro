@@ -1,11 +1,11 @@
 object DM: TDM
   OldCreateOrder = False
-  Height = 280
-  Width = 329
+  Height = 322
+  Width = 389
   object img16: TImageList
     BkColor = clBlack
-    Left = 88
-    Top = 40
+    Left = 32
+    Top = 24
     Bitmap = {
       494C01011100340034001000100000000000FF00FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000005000000001002000000000000050
@@ -677,8 +677,8 @@ object DM: TDM
     BkColor = clBlack
     Height = 24
     Width = 24
-    Left = 88
-    Top = 88
+    Left = 32
+    Top = 72
     Bitmap = {
       494C01011100380038001800180000000000FF00FFFFFFFFFFFFFFFF424D3600
       00000000000036000000280000006000000078000000010020000000000000B4
@@ -2367,19 +2367,352 @@ object DM: TDM
         Ref.StandardColor = fcRed
         Ref.UseStandardColor = True
       end>
-    Left = 88
-    Top = 136
+    Left = 32
+    Top = 120
   end
   object dlgOpen: TOpenDialog
     DefaultExt = '.hma'
     Filter = 'Holy Macro! Script Files|*.hms|All Files|*.*'
     FilterIndex = 0
-    Left = 145
-    Top = 40
+    Left = 89
+    Top = 24
   end
   object dlgSave: TSaveDialog
     Filter = 'Holy Macro! Script Files|*.hms|All Files|*.*'
-    Left = 144
-    Top = 88
+    Left = 88
+    Top = 72
+  end
+  object dwsUnit: TdwsUnit
+    Script = DWS
+    Constants = <
+      item
+        Name = 'VK_LBUTTON'
+        DataType = 'Integer'
+        Value = '1'
+      end
+      item
+        Name = 'VK_RBUTTON'
+        DataType = 'Integer'
+        Value = '2'
+      end
+      item
+        Name = 'VK_CANCEL'
+        DataType = 'Integer'
+        Value = '3'
+      end
+      item
+        Name = 'VK_MBUTTON'
+        DataType = 'Integer'
+        Value = '4'
+      end
+      item
+        Name = 'VK_XBUTTON1'
+        DataType = 'Integer'
+        Value = '5'
+      end
+      item
+        Name = 'VK_XBUTTON2'
+        DataType = 'Integer'
+        Value = '6'
+      end
+      item
+        Name = 'VK_BACK'
+        DataType = 'Integer'
+        Value = '8'
+      end
+      item
+        Name = 'VK_TAB'
+        DataType = 'Integer'
+        Value = '9'
+      end
+      item
+        Name = 'VK_CLEAR'
+        DataType = 'Integer'
+        Value = '23'
+      end
+      item
+        Name = 'VK_RETURN'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_SHIFT'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_CONTROL'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_MENU'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_PAUSE'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_CAPITAL'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_KANA'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_HANGUL'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_JUNJA'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_FINAL'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_HANJA'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_KANJI'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_CONVERT'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_NONCONVERT'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_ACCEPT'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_MODECHANGE'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_ESCAPE'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_SPACE'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_PRIOR'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_NEXT'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_END'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_HOME'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_LEFT'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_UP'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_RIGHT'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_DOWN'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_SELECT'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_PRINT'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_EXECUTE'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_SNAPSHOT'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_INSERT'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_DELETE'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_HELP'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_LWIN'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_RWIN'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_APPS'
+        DataType = 'Integer'
+      end
+      item
+        Name = 'VK_SLEEP'
+        DataType = 'Integer'
+      end>
+    Functions = <
+      item
+        Name = 'Terminate'
+        OnEval = dwsUnitFunctionsTerminateEval
+      end
+      item
+        Name = 'Terminated'
+        ResultType = 'Boolean'
+        OnEval = dwsUnitFunctionsTerminatedEval
+      end
+      item
+        Name = 'ShowMessage'
+        Parameters = <
+          item
+            Name = 'AText'
+            DataType = 'String'
+          end>
+        OnEval = dwsUnitFunctionsShowMessageEval
+      end
+      item
+        Name = 'GetCursorPosX'
+        ResultType = 'Integer'
+        OnEval = dwsUnitFunctionsGetCursorPosXEval
+      end
+      item
+        Name = 'GetCursorPosY'
+        ResultType = 'Integer'
+        OnEval = dwsUnitFunctionsGetCursorPosYEval
+      end
+      item
+        Name = 'GetCursorPos'
+        ResultType = 'TPoint'
+        OnEval = dwsUnitFunctionsGetCursorPosEval
+      end
+      item
+        Name = 'MoveMouse'
+        Parameters = <
+          item
+            Name = 'X'
+            DataType = 'Integer'
+          end
+          item
+            Name = 'Y'
+            DataType = 'Integer'
+          end>
+        OnEval = dwsUnitFunctionsMoveMouseEval
+      end
+      item
+        Name = 'MouseLeftClick'
+        Parameters = <
+          item
+            Name = 'X'
+            DataType = 'Integer'
+          end
+          item
+            Name = 'Y'
+            DataType = 'Integer'
+          end>
+        OnEval = dwsUnitFunctionsMouseLeftClickEval
+      end
+      item
+        Name = 'MouseRightClick'
+        Parameters = <
+          item
+            Name = 'X'
+            DataType = 'Integer'
+          end
+          item
+            Name = 'Y'
+            DataType = 'Integer'
+          end>
+        OnEval = dwsUnitFunctionsMouseRightClickEval
+      end
+      item
+        Name = 'MouseMiddleClick'
+        Parameters = <
+          item
+            Name = 'X'
+            DataType = 'Integer'
+          end
+          item
+            Name = 'Y'
+            DataType = 'Integer'
+          end>
+        OnEval = dwsUnitFunctionsMouseMiddleClickEval
+      end
+      item
+        Name = 'Wait'
+        Parameters = <
+          item
+            Name = 'Msec'
+            DataType = 'Integer'
+          end>
+        OnEval = dwsUnitFunctionsWaitEval
+      end
+      item
+        Name = 'GetSavedCoords'
+        Parameters = <
+          item
+            Name = 'X'
+            DataType = 'Integer'
+            IsVarParam = True
+          end
+          item
+            Name = 'Y'
+            DataType = 'Integer'
+            IsVarParam = True
+          end>
+        OnEval = dwsUnitFunctionsGetSavedCoordsEval
+      end>
+    Records = <
+      item
+        Name = 'TPoint'
+        Members = <
+          item
+            Name = 'X'
+            DataType = 'Integer'
+          end
+          item
+            Name = 'Y'
+            DataType = 'Integer'
+          end>
+        Properties = <>
+      end>
+    UnitName = 'HolyMacro'
+    StaticSymbols = False
+    Left = 169
+    Top = 80
+  end
+  object DWS: TDelphiWebScript
+    Config.OnExecutionStarted = DWSExecutionStarted
+    Config.OnExecutionEnded = DWSExecutionEnded
+    OnExecutionStarted = DWSExecutionStarted
+    OnExecutionEnded = DWSExecutionEnded
+    Left = 169
+    Top = 26
   end
 end

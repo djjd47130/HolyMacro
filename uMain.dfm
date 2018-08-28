@@ -2,7 +2,7 @@ object frmMain: TfrmMain
   Left = 0
   Top = 0
   Caption = 'New File - Holy Macro!'
-  ClientHeight = 515
+  ClientHeight = 527
   ClientWidth = 701
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -10,12 +10,21 @@ object frmMain: TfrmMain
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  Menu = MM
   OldCreateOrder = False
   ShowHint = True
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
+  object Bevel1: TBevel
+    Left = 0
+    Top = 31
+    Width = 701
+    Height = 8
+    Align = alTop
+    Shape = bsBottomLine
+  end
   object ToolBar1: TToolBar
     Left = 0
     Top = 0
@@ -64,27 +73,28 @@ object frmMain: TfrmMain
       Cursor = crHandPoint
       Action = actSelectPoint
     end
-    object ToolButton3: TToolButton
+    object ToolButton1: TToolButton
       Left = 163
+      Top = 0
+      Cursor = crHandPoint
+      Action = actStartStop
+    end
+    object ToolButton3: TToolButton
+      Left = 194
       Top = 0
       Width = 8
       Caption = 'ToolButton3'
       ImageIndex = 5
       Style = tbsSeparator
     end
-    object ToolButton1: TToolButton
-      Left = 171
-      Top = 0
-      Cursor = crHandPoint
-      Action = actStartStop
-    end
   end
   object Editor: TSynEdit
     Left = 0
-    Top = 31
+    Top = 39
     Width = 701
-    Height = 322
+    Height = 378
     Align = alTop
+    Anchors = [akLeft, akTop, akRight, akBottom]
     Color = clBlack
     ActiveLineColor = 2621440
     Font.Charset = DEFAULT_CHARSET
@@ -93,44 +103,37 @@ object frmMain: TfrmMain
     Font.Name = 'Courier New'
     Font.Style = []
     ParentShowHint = False
+    PopupMenu = mEditor
     ShowHint = False
     TabOrder = 1
     BorderStyle = bsNone
+    Gutter.AutoSize = True
     Gutter.Color = clBlack
+    Gutter.BorderColor = 5395026
     Gutter.Font.Charset = DEFAULT_CHARSET
-    Gutter.Font.Color = clWhite
+    Gutter.Font.Color = clSilver
     Gutter.Font.Height = -11
     Gutter.Font.Name = 'Courier New'
     Gutter.Font.Style = []
+    Gutter.RightOffset = 5
     Gutter.ShowLineNumbers = True
     Highlighter = Highlighter
-    Lines.Strings = (
-      '//Test'
-      'var'
-      '  X: Integer;'
-      'begin'
-      '  for X:= 1 to 7 do begin'
-      '    Move(100, 200);'
-      '    ClickLeftDown;'
-      '    ClickLeftUp;'
-      '    Wait(1000);'
-      '    ClickLeftDown;'
-      '    ClickLeftUp;'
-      '    Wait(40000);'
-      '  end;'
-      'end;')
-    Options = [eoAutoIndent, eoDragDropEditing, eoEnhanceEndKey, eoGroupUndo, eoKeepCaretX, eoScrollPastEol, eoShowScrollHint, eoSmartTabDelete, eoTabsToSpaces]
-    RightEdge = 40
+    Options = [eoAutoIndent, eoDragDropEditing, eoEnhanceEndKey, eoGroupUndo, eoHideShowScrollbars, eoKeepCaretX, eoRightMouseMovesCursor, eoScrollPastEol, eoShowScrollHint, eoSmartTabDelete, eoTabsToSpaces, eoTrimTrailingSpaces]
+    RightEdge = 50
+    RightEdgeColor = 5395026
     SelectedColor.Background = 6579300
+    SelectedColor.Foreground = clWhite
     TabWidth = 2
     WantTabs = True
     OnChange = EditorChange
+    OnGutterGetText = EditorGutterGetText
+    OnTokenHint = EditorTokenHint
     FontSmoothing = fsmNone
-    ExplicitWidth = 724
+    ExplicitTop = 31
   end
   object Stat: TStatusBar
     Left = 0
-    Top = 496
+    Top = 508
     Width = 701
     Height = 19
     Panels = <
@@ -144,6 +147,8 @@ object frmMain: TfrmMain
       item
         Width = 50
       end>
+    ExplicitLeft = -96
+    ExplicitTop = 456
   end
   object Acts: TActionManager
     ActionBars = <
@@ -232,6 +237,9 @@ object frmMain: TfrmMain
       ImageIndex = 3
       OnExecute = actFileExitExecute
     end
+    object Action1: TAction
+      Caption = 'Action1'
+    end
   end
   object Tray: TTrayIcon
     Icons = DM.img16
@@ -264,147 +272,6 @@ object frmMain: TfrmMain
       Action = actFileExit
     end
   end
-  object DWS: TDelphiWebScript
-    Config.OnResource = DWSResource
-    Config.OnExecutionStarted = DWSExecutionStarted
-    Config.OnExecutionEnded = DWSExecutionEnded
-    OnResource = DWSResource
-    OnExecutionStarted = DWSExecutionStarted
-    OnExecutionEnded = DWSExecutionEnded
-    Left = 209
-    Top = 432
-  end
-  object dwsUnit: TdwsUnit
-    Script = DWS
-    Functions = <
-      item
-        Name = 'Terminate'
-        OnEval = dwsUnitFunctionsTerminateEval
-      end
-      item
-        Name = 'Terminated'
-        ResultType = 'Boolean'
-        OnEval = dwsUnitFunctionsTerminatedEval
-      end
-      item
-        Name = 'ShowMessage'
-        Parameters = <
-          item
-            Name = 'AText'
-            DataType = 'String'
-          end>
-        OnEval = dwsUnitFunctionsShowMessageEval
-      end
-      item
-        Name = 'GetCursorPosX'
-        ResultType = 'Integer'
-        OnEval = dwsUnitFunctionsGetCursorPosXEval
-      end
-      item
-        Name = 'GetCursorPosY'
-        ResultType = 'Integer'
-        OnEval = dwsUnitFunctionsGetCursorPosYEval
-      end
-      item
-        Name = 'GetCursorPos'
-        ResultType = 'TPoint'
-        OnEval = dwsUnitFunctionsGetCursorPosEval
-      end
-      item
-        Name = 'MoveMouse'
-        Parameters = <
-          item
-            Name = 'X'
-            DataType = 'Integer'
-          end
-          item
-            Name = 'Y'
-            DataType = 'Integer'
-          end>
-        OnEval = dwsUnitFunctionsMoveMouseEval
-      end
-      item
-        Name = 'MouseLeftClick'
-        Parameters = <
-          item
-            Name = 'X'
-            DataType = 'Integer'
-          end
-          item
-            Name = 'Y'
-            DataType = 'Integer'
-          end>
-        OnEval = dwsUnitFunctionsMouseLeftClickEval
-      end
-      item
-        Name = 'MouseRightClick'
-        Parameters = <
-          item
-            Name = 'X'
-            DataType = 'Integer'
-          end
-          item
-            Name = 'Y'
-            DataType = 'Integer'
-          end>
-        OnEval = dwsUnitFunctionsMouseRightClickEval
-      end
-      item
-        Name = 'MouseMiddleClick'
-        Parameters = <
-          item
-            Name = 'X'
-            DataType = 'Integer'
-          end
-          item
-            Name = 'Y'
-            DataType = 'Integer'
-          end>
-        OnEval = dwsUnitFunctionsMouseMiddleClickEval
-      end
-      item
-        Name = 'Wait'
-        Parameters = <
-          item
-            Name = 'Msec'
-            DataType = 'Integer'
-          end>
-        OnEval = dwsUnitFunctionsWaitEval
-      end
-      item
-        Name = 'GetSavedCoords'
-        Parameters = <
-          item
-            Name = 'X'
-            DataType = 'Integer'
-            IsVarParam = True
-          end
-          item
-            Name = 'Y'
-            DataType = 'Integer'
-            IsVarParam = True
-          end>
-        OnEval = dwsUnitFunctionsGetSavedCoordsEval
-      end>
-    Records = <
-      item
-        Name = 'TPoint'
-        Members = <
-          item
-            Name = 'X'
-            DataType = 'Integer'
-          end
-          item
-            Name = 'Y'
-            DataType = 'Integer'
-          end>
-        Properties = <>
-      end>
-    UnitName = 'HolyMacro'
-    StaticSymbols = False
-    Left = 249
-    Top = 432
-  end
   object Highlighter: TSynPasSyn
     Options.AutoDetectEnabled = False
     Options.AutoDetectLineLimit = 0
@@ -419,7 +286,200 @@ object frmMain: TfrmMain
     StringAttri.Style = [fsBold]
     CharAttri.Foreground = clSkyBlue
     SymbolAttri.Foreground = clSilver
-    Left = 168
+    Left = 240
     Top = 432
+  end
+  object mEditor: TPopupMenu
+    OnPopup = mEditorPopup
+    Left = 416
+    Top = 432
+    object mEditorCut: TMenuItem
+      Caption = 'Cut'
+    end
+    object mEditorCopy: TMenuItem
+      Caption = 'Copy'
+    end
+    object mEditorPaste: TMenuItem
+      Caption = 'Paste'
+    end
+    object N3: TMenuItem
+      Caption = '-'
+    end
+    object mEditorToggleBookmark: TMenuItem
+      Caption = 'Toggle Bookmark'
+      object mToggleBookmark0: TMenuItem
+        Caption = 'Bookmark 0'
+        OnClick = ToggleBookmarkClick
+      end
+      object mToggleBookmark1: TMenuItem
+        Tag = 1
+        Caption = 'Bookmark 1'
+        OnClick = ToggleBookmarkClick
+      end
+      object mToggleBookmark2: TMenuItem
+        Tag = 2
+        Caption = 'Bookmark 2'
+        OnClick = ToggleBookmarkClick
+      end
+      object mToggleBookmark3: TMenuItem
+        Tag = 3
+        Caption = 'Bookmark 3'
+        OnClick = ToggleBookmarkClick
+      end
+      object mToggleBookmark4: TMenuItem
+        Tag = 4
+        Caption = 'Bookmark 4'
+        OnClick = ToggleBookmarkClick
+      end
+      object mToggleBookmark5: TMenuItem
+        Tag = 5
+        Caption = 'Bookmark 5'
+        OnClick = ToggleBookmarkClick
+      end
+      object mToggleBookmark6: TMenuItem
+        Tag = 6
+        Caption = 'Bookmark 6'
+        OnClick = ToggleBookmarkClick
+      end
+      object mToggleBookmark7: TMenuItem
+        Tag = 7
+        Caption = 'Bookmark 7'
+        OnClick = ToggleBookmarkClick
+      end
+      object mToggleBookmark8: TMenuItem
+        Tag = 8
+        Caption = 'Bookmark 8'
+        OnClick = ToggleBookmarkClick
+      end
+      object mToggleBookmark9: TMenuItem
+        Tag = 9
+        Caption = 'Bookmark 9'
+        OnClick = ToggleBookmarkClick
+      end
+    end
+    object mEditorGotoBookmark: TMenuItem
+      Caption = 'Goto Bookmark'
+      object mGotoBookmark0: TMenuItem
+        Caption = 'Bookmark 0'
+        OnClick = GotoBookmarkClick
+      end
+      object Bookmark12: TMenuItem
+        Tag = 1
+        Caption = 'Bookmark 1'
+        OnClick = GotoBookmarkClick
+      end
+      object Bookmark22: TMenuItem
+        Tag = 2
+        Caption = 'Bookmark 2'
+        OnClick = GotoBookmarkClick
+      end
+      object Bookmark32: TMenuItem
+        Tag = 3
+        Caption = 'Bookmark 3'
+        OnClick = GotoBookmarkClick
+      end
+      object Bookmark42: TMenuItem
+        Tag = 4
+        Caption = 'Bookmark 4'
+        OnClick = GotoBookmarkClick
+      end
+      object Bookmark52: TMenuItem
+        Tag = 5
+        Caption = 'Bookmark 5'
+        OnClick = GotoBookmarkClick
+      end
+      object Bookmark62: TMenuItem
+        Tag = 6
+        Caption = 'Bookmark 6'
+        OnClick = GotoBookmarkClick
+      end
+      object Bookmark72: TMenuItem
+        Tag = 7
+        Caption = 'Bookmark 7'
+        OnClick = GotoBookmarkClick
+      end
+      object Bookmark82: TMenuItem
+        Tag = 8
+        Caption = 'Bookmark 8'
+        OnClick = GotoBookmarkClick
+      end
+      object Bookmark92: TMenuItem
+        Tag = 9
+        Caption = 'Bookmark 9'
+        OnClick = GotoBookmarkClick
+      end
+    end
+    object mEditorClearBookmarks: TMenuItem
+      Caption = 'Clear Bookmarks'
+      OnClick = mEditorClearBookmarksClick
+    end
+  end
+  object MM: TMainMenu
+    Images = DM.img16
+    Left = 176
+    Top = 432
+    object File1: TMenuItem
+      Caption = 'File'
+      object NewScript1: TMenuItem
+        Action = actFileNew
+      end
+      object OpenScript1: TMenuItem
+        Action = actFileOpen
+      end
+      object SaveScript1: TMenuItem
+        Action = actFileSave
+      end
+      object SaveScriptAs1: TMenuItem
+        Action = actFileSaveAs
+      end
+      object N4: TMenuItem
+        Caption = '-'
+      end
+      object ExitHolyMacro1: TMenuItem
+        Action = actFileExit
+      end
+    end
+    object Edit1: TMenuItem
+      Caption = 'Edit'
+      object Undo1: TMenuItem
+        Caption = 'Undo'
+      end
+      object Redo1: TMenuItem
+        Caption = 'Redo'
+      end
+      object N5: TMenuItem
+        Caption = '-'
+      end
+      object Cut1: TMenuItem
+        Caption = 'Cut'
+      end
+      object Copy1: TMenuItem
+        Caption = 'Copy'
+      end
+      object Paste1: TMenuItem
+        Caption = 'Paste'
+      end
+      object SelectAll1: TMenuItem
+        Caption = 'Select All'
+      end
+      object N6: TMenuItem
+        Caption = '-'
+      end
+      object Find1: TMenuItem
+        Caption = 'Find'
+      end
+      object FindandReplace1: TMenuItem
+        Caption = 'Find and Replace'
+      end
+    end
+    object View1: TMenuItem
+      Caption = 'View'
+    end
+    object Options1: TMenuItem
+      Caption = 'Options'
+    end
+    object Help1: TMenuItem
+      Caption = 'Help'
+    end
   end
 end
